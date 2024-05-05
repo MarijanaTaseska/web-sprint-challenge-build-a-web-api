@@ -13,8 +13,8 @@ server.use('/api/actions',actionsRouter)
 // Build your projects router in /api/projects/projects-router.js
 // Do NOT `server.listen()` inside this file!
 
-server.get('/hello-world', (req, res) =>{
-    res.status(200).json({message:"hello world"})
+server.get('*', (req, res) =>{
+    res.status(200).json({message:"server works"})
 })
 
 module.exports = server;
