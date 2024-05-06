@@ -1,6 +1,7 @@
 // Write your "actions" router here!
 const express = require("express")
 const Actions = require('./actions-model')
+const Projects = require('../projects/projects-model')
 
 const router = express.Router()
 
@@ -32,6 +33,61 @@ router.get('/:id', async (req, res) => {
     }  
 })
 
+router.post('/', async (req, res) => {
+    try{
+    const {project_id, description, notes } = req.body;
+    
+    if(!project_id || !description, !notes){
+        res.status(400).json({message:" notes and description are required"})
+    }else{
+        const checkProjectID = await Projects.get(req.params.id)
+        if(!checkProjectID){
+            res.status(404).json({message: " No project with a given ID"})
+        }else{
+            const createAction = await Actions.insert(req.body)
+            res.status(201).json(createAction)
+        }
+     }
+    }
+    catch(err){
+        res.status(500).json({message: `Error posting project ${err.message}`})
+     }
+    })
+
+    router.put('/:id', async (req, res) => {
+        try{
+        const { project_id, description, notes, completed } = req.body;
+        const {id} = req.params
+        if(!project_id || !description || !notes || completed === undefined ){
+            res.status(400).json({message: "notes, description, project_id and completed are required"})
+        }else{
+            const checkActionID = await Actions.get(id)
+            if(!checkActionID){
+                res.status(404).json({message:"no action with a given ID"})
+            }else{
+                    const updateAction = await Actions.update(id,{project_id, description, notes, completed})
+                    res.status(201).json(updateAction)
+                 }  
+            }
+        }
+        catch(err){
+            res.status(500).json({message: `Error updating project ${err.message}`})
+         }
+        })
+
+        router.delete('/:id',async (req, res) => {
+            try{
+                const actionId = await Actions.get(req.params.id)
+                if(!actionId){
+                    res.status(404).json({message:"no actions with this id"})
+                }else{
+                  const deletedAction = await Actions.remove(actionId.id)
+                  res.json({message:`you successfully deleted ${deletedAction} project`})
+                }
+            }catch(err){
+                res.status(500).json({message: `Error deleting project ${err.message}`}) 
+            }
+            })
 
 
 module.exports = router
