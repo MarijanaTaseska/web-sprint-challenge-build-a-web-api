@@ -35,14 +35,13 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try{
-    const {project_id, description, notes } = req.body;
-    
-    if(!project_id || !description, !notes){
-        res.status(400).json({message:" notes and description are required"})
+    const {project_id, description, notes } = req.body;   
+    if(!project_id || !description || !notes){
+        res.status(400).json({message:"project_id, notes and description are required"})
     }else{
-        const checkProjectID = await Projects.get(req.params.id)
+        const checkProjectID = await Projects.get(project_id)
         if(!checkProjectID){
-            res.status(404).json({message: " No project with a given ID"})
+            res.status(404).json({message: "No project with a given project_id"})
         }else{
             const createAction = await Actions.insert(req.body)
             res.status(201).json(createAction)
@@ -62,8 +61,9 @@ router.post('/', async (req, res) => {
             res.status(400).json({message: "notes, description, project_id and completed are required"})
         }else{
             const checkActionID = await Actions.get(id)
-            if(!checkActionID){
-                res.status(404).json({message:"no action with a given ID"})
+            const checkProjectID = await Projects.get(project_id)
+            if(!checkActionID || !checkProjectID){
+                res.status(404).json({message:"no action with a given ID and project_id"})
             }else{
                     const updateAction = await Actions.update(id,{project_id, description, notes, completed})
                     res.status(201).json(updateAction)
