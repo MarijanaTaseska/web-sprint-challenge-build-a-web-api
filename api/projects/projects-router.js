@@ -1,7 +1,7 @@
 // Write your "projects" router here!
 const express = require("express")
 const Projects = require('./projects-model')
-
+const {validateProjectId} = require('./projects-middleware')
 const router = express.Router()
 
 router.get('/', async (req, res) => {
@@ -18,18 +18,20 @@ router.get('/', async (req, res) => {
     }  
 })
 
-router.get('/:id', async (req, res) => {
-    try{
-    const project = await Projects.get(req.params.id)
-    if(!project){
-        res.status(404).json({message:"No project with a given id"})
-    }else{
-        res.json(project)
-    }
-    }
-    catch(err){
-    res.status(500).json({message: "Error fetching project"})
-    }  
+router.get('/:id', validateProjectId,(req, res) => {
+    console.log(req.project)
+    res.json(req.project)
+    // try{
+    // const project = await Projects.get(req.params.id)
+    // if(!project){
+    //     res.status(404).json({message:"No project with a given id"})
+    // }else{
+    //     res.json(project)
+    // }
+    // }
+    // catch(err){
+    // res.status(500).json({message: "Error fetching project"})
+    // }  
 })
 
 router.post('/', async (req, res) => {
@@ -47,7 +49,7 @@ catch(err){
 }
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id',validateProjectId, async (req, res) => {
 try{
 const { id } = req.params
 const {name, description, completed} = req.body
@@ -68,32 +70,32 @@ catch(err){
 }
 })
 
-router.delete('/:id',async (req, res) => {
+router.delete('/:id',validateProjectId, async (req, res) => {
 try{
-    const projectID = await Projects.get(req.params.id)
-    if(!projectID){
-        res.status(404).json({message:"no project with this id"})
-    }else{
-      const deletedProject = await Projects.remove(projectID.id)
+    // const projectID = await Projects.get(req.params.id)
+    // if(!projectID){
+    //     res.status(404).json({message:"no project with this id"})
+    // }else{
+      const deletedProject = await Projects.remove(req.params.id)
       res.json({message:`you successfully deleted ${deletedProject} project`})
-    }
+   // }
 }catch(err){
-    res.status(500).json({message: `Error updating project ${err.message}`}) 
+    res.status(500).json({message: `Error deleting project ${err.message}`}) 
 }
 })
 
-router.get('/:id/actions', async (req, res) => {
+router.get('/:id/actions',validateProjectId, async (req, res) => {
     try{
-        const projectID = await Projects.get(req.params.id)
-    if(!projectID){
-        res.status(404).json({message:"no project with this id"})
-    }else{
+    //     const projectID = await Projects.get(req.params.id)
+    // if(!projectID){
+    //     res.status(404).json({message:"no project with this id"})
+    // }else{
         const projectActions = await Projects.getProjectActions(req.params.id)
         res.status(200).json(projectActions)
-    }
+    //}
  }
     catch(err){
-        res.status(500).json({message: `Error updating project ${err.message}`})
+        res.status(500).json({message: `Error retrieving project actions ${err.message}`})
     }
 })
 
