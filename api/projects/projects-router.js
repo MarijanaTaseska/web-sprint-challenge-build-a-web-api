@@ -19,22 +19,10 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/:id', validateProjectId,(req, res) => {
-    console.log(req.project)
     res.json(req.project)
-    // try{
-    // const project = await Projects.get(req.params.id)
-    // if(!project){
-    //     res.status(404).json({message:"No project with a given id"})
-    // }else{
-    //     res.json(project)
-    // }
-    // }
-    // catch(err){
-    // res.status(500).json({message: "Error fetching project"})
-    // }  
 })
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
 try{
 const {name, description} = req.body;
 if(!name || !description){
@@ -45,58 +33,51 @@ if(!name || !description){
  }
 }
 catch(err){
-    res.status(500).json({message: `Error posting project ${err.message}`})
+    next(err)
 }
 })
 
-router.put('/:id',validateProjectId, async (req, res) => {
+router.put('/:id',validateProjectId, async (req, res, next) => {
 try{
 const { id } = req.params
 const {name, description, completed} = req.body
 if(!name || !description || completed === undefined){
     res.status(400).json({message: "Must provide name, completed and description to update"})
 }else{
-    const project = await Projects.get(id)
-    if(!project){
-        res.status(404).json({message:"no projects with this id"})
-    }else{
      const updateProject = await Projects.update(id,{name, description, completed})
      res.status(200).json(updateProject)
-    }
  }
  }
-catch(err){
-    res.status(500).json({message: `Error updating project ${err.message}`}) 
-}
+ catch(err){
+    next(err)
+ }
 })
 
-router.delete('/:id',validateProjectId, async (req, res) => {
+router.delete('/:id',validateProjectId, async (req, res, next) => {
 try{
-    // const projectID = await Projects.get(req.params.id)
-    // if(!projectID){
-    //     res.status(404).json({message:"no project with this id"})
-    // }else{
       const deletedProject = await Projects.remove(req.params.id)
       res.json({message:`you successfully deleted ${deletedProject} project`})
-   // }
 }catch(err){
-    res.status(500).json({message: `Error deleting project ${err.message}`}) 
+    next(err)
 }
 })
 
-router.get('/:id/actions',validateProjectId, async (req, res) => {
+router.get('/:id/actions',validateProjectId, async (req, res, next) => {
     try{
-    //     const projectID = await Projects.get(req.params.id)
-    // if(!projectID){
-    //     res.status(404).json({message:"no project with this id"})
-    // }else{
         const projectActions = await Projects.getProjectActions(req.params.id)
         res.status(200).json(projectActions)
-    //}
  }
     catch(err){
-        res.status(500).json({message: `Error retrieving project actions ${err.message}`})
+        next(err)
     }
-})
+});
+
+router.use((err, req, res, next) => {
+    res.status(500).json({
+      customMessage:'Error inside projects router',
+      message:err.message,
+      stack: err.stack,
+    })
+  })
 
 module.exports = router

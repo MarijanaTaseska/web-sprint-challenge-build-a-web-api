@@ -2,6 +2,7 @@
 const express = require("express")
 const Actions = require('./actions-model')
 const Projects = require('../projects/projects-model')
+const {validateActionsID} = require('./actions-middlware')
 
 const router = express.Router()
 
@@ -19,18 +20,19 @@ router.get('/', async (req, res) => {
     }  
 })
 
-router.get('/:id', async (req, res) => {
-    try{
-    const project = await Actions.get(req.params.id)
-    if(!project){
-        res.status(404).json({message:"No action with a given id"})
-    }else{
-        res.json(project)
-    }
-    }
-    catch(err){
-    res.status(500).json({message: "Error fetching action with a given id"})
-    }  
+router.get('/:id',validateActionsID, (req, res) => {
+    // try{
+    // const project = await Actions.get(req.params.id)
+    // if(!project){
+    //     res.status(404).json({message:"No action with a given id"})
+    // }else{
+    //     res.json(project)
+    // }
+    // }
+    // catch(err){
+    // res.status(500).json({message: "Error fetching action with a given id"})
+    // }  
+    res.json(req.action)
 })
 
 router.post('/', async (req, res) => {

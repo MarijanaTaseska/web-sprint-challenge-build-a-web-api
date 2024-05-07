@@ -12,16 +12,11 @@ async function validateProjectId(req, res, next){
             next()
         }
     } catch(err){
-        res.status(500).json({message:"Error retrieving user"})
+        res.status(500).json({message:"Error retrieving project"})
     }
-}
-
-function checkId(req, res, next){
-    next()
 }
 
 
 module.exports = {
     validateProjectId,
-
 }
