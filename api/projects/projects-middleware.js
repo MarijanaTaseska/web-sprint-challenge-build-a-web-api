@@ -16,7 +16,17 @@ async function validateProjectId(req, res, next){
     }
 }
 
+ function validateProjectBody(req, res, next){ const { name, description }  = req.body
+        if(!name || !description){
+            res.status(400).json({message: "Must provide name and description"})
+        }else{
+            req.name = name;
+            req.description = description;
+            next()
+         }
+}
 
 module.exports = {
     validateProjectId,
+    validateProjectBody,
 }
